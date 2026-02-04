@@ -13,5 +13,6 @@ a= person("Ayush", "Dev")
 #print(a.name)
 #a.info()
 b= person("Divya", "HR")
+
 a.info()
 b.info()
