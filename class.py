@@ -10,7 +10,6 @@ a = Person()
 a.name = "Ayush"
 a.occ = "eng"
 a.gender = "boy"
-
 print(a.name)
 a.info()
 
