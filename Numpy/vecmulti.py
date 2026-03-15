@@ -7,7 +7,7 @@ mat2=np.array([[5,6],
 
 matmul1= mat1@mat2
 matmul2= np.dot(mat1,mat2)
-matmul3= np.matmul(mat1,mat1)
+matmul3= np.matmul(mat1,mat2)
 print(matmul1)
 print(matmul2)
 print(matmul3)
@@ -38,3 +38,20 @@ vm3=v1@m3 #Shape will be (3,)
 
 print(vm1, vm1.shape)
 print(vm3, vm3.shape)
+
+print(matmul1[0])
+
+X = np.arange(1,25).reshape(4,6)
+W = np.arange(1,13).reshape(6,2)
+
+print(X)
+print(W)
+
+ans=X@W #Shape will be (4,2)
+
+print(ans, ans.shape)
+print(ans[1])
+print(ans[2,1])
+
+#mulans=X*W Shapes must be equal for this
+#print(mulans) 
