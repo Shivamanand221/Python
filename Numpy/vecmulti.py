@@ -12,6 +12,7 @@ print(matmul1)
 print(matmul2)
 print(matmul3)
 
+
 # Matrix & Vector
 v1=np.array([1,2,3])
 print(v1.shape)
