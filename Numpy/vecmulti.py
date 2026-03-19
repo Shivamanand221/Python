@@ -56,3 +56,19 @@ print(ans[2,1])
 
 #mulans=X*W Shapes must be equal for this
 #print(mulans) 
+
+
+# 2 operations
+op1=np.array([[1,2,3,4],
+             [5,6,7,8],
+             [9,10,11,12]])
+
+op2=np.array([[1,2],
+              [3,4],
+             [5,6],
+             [7,8]])
+
+op3=np.array([1,1])
+
+ans1=op1@op2+op3
+print(ans1)
