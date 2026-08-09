@@ -17,3 +17,7 @@ def func3(num: int):
 @app.get("/greet")
 def func4(name: str = "Guest", age: int = 22):
     return {"message": f"{name}! is {age} years old."}
+
+@app.get("/numbers")
+def user():
+    return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
