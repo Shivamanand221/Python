@@ -25,3 +25,24 @@ print(add+10)
 x=np.array([1,2,3])  
 y=np.array([10,20,30]) 
 print(x+y)
+
+arr = np.array([
+    [10, 20, 30],
+    [40, 50, 60],
+    [70, 80, 90]
+])
+
+print(
+    arr[0,1],
+    arr[-2],
+    arr[1:3],
+    arr[1:5],
+    arr[:2],
+    arr[2:],
+    arr[0:5:2],
+    arr[0:2, 1:3],
+    arr[0:3, 2:3],
+    arr[0:, :3],
+    arr[:, :],
+    sep='\n'
+)
