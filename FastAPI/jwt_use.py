@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 import jwt
+from datetime import datetime, timedelta, timezone
 
 app= FastAPI()
 
@@ -113,8 +114,6 @@ def get_role(token: str= Depends(oauth2_scheme)):
         }
 
 
-
-from datetime import datetime, timedelta, timezone
 
 app3= FastAPI()
 
