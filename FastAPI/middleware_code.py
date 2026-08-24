@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 import time
 
 app= FastAPI()
@@ -79,3 +80,26 @@ async def middleware_header(request: Request, call_next):
 @app4.get("/hello")
 def hello():
     return {"message": "Hello"}
+
+
+
+app5= FastAPI()
+
+@app5.middleware("http")
+async def middleware_key(request: Request, call_next):
+
+    api_key=request.headers.get("X-API-Key")
+
+    if api_key != "my-secret-key":
+        return JSONResponse(
+            status_code=401,
+            content= {"detail": "Invalid API key"}
+        )
+
+    response= await call_next(request)
+
+    return response
+
+@app5.get("/hello")
+def hello():
+    return {"message":"Hello"}

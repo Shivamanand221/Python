@@ -4,67 +4,70 @@ from typing import Optional
 
 app = FastAPI()
 
-# class Student(BaseModel):
-#     name: str
-#     age: int
-#     course: str
-#     marks: int = 0
+class Student(BaseModel):
+    name: str
+    age: int
+    course: str
+    marks: int = 0
 
-# @app.post("/students")
-# def create_student(student: Student):
-#     return student
+@app.post("/students")
+def create_student(student: Student):
+    return student
 
 
 # Nested Models
 
-# class Address(BaseModel):
-#     city: str
-#     pincode: int
+app1 = FastAPI()
+class Address(BaseModel):
+    city: str
+    pincode: int
 
-# class Student(BaseModel):
-#     name: str
-#     age: int
-#     address: Address
+class Student(BaseModel):
+    name: str
+    age: int
+    address: Address
 
-# @app.post("/students")
-# def student_details(student: Student):
-#     return {
-#         "student": student
-#     }
-
-
-
-
-# class Student(BaseModel):
-#     name: str
-#     age: int
-#     course: str
-#     marks: int = 0
-#     subjects: list[str]
-#     nickname: str | None = None
-
-# @app.post("/students")
-# def create_student(student: Student):
-#     return student
+@app1.post("/students")
+def student_details(student: Student):
+    return {
+        "student": student
+    }
 
 
 
-# class Student(BaseModel):
-#     name: str = Field(min_length=3, max_length=20)
-#     age: int = Field(ge=18, le=100)
-#     course: str = Field(min_length=2, max_length=30)
-#     marks: int = Field(default=0, ge=0, le=100)
-#     subjects: list[str]
-#     nickname: str | None = None
+app2 = FastAPI()
+class Student(BaseModel):
+    name: str
+    age: int
+    course: str
+    marks: int = 0
+    subjects: list[str]
+    nickname: str | None = None
 
-# @app.post("/students")
-# def create_student(student: Student):
-#     return student
+@app2.post("/students")
+def create_student(student: Student):
+    return student
+
+
+app3 = FastAPI()
+class Student(BaseModel):
+    name: str = Field(min_length=3, max_length=20)
+    age: int = Field(ge=18, le=100)
+    course: str = Field(min_length=2, max_length=30)
+    marks: int = Field(default=0, ge=0, le=100)
+    subjects: list[str]
+    nickname: str | None = None
+
+@app3.post("/students")
+def create_student(student: Student):
+    return student
 
 
 
 # Custom Validation
-"""
+
+app4 = FastAPI()
+
 class Student(BaseModel):
     name: str
     age: int
@@ -83,14 +86,16 @@ class Student(BaseModel):
             raise ValueError("Age must be greater than or equal to 18")
         return value
 
-@app.post("/students")
+@app4.post("/students")
 def create_student(student: Student):
     return student
-"""
+
 
 
 
 # Model Validation
+
+app5 = FastAPI()
 
 class Student(BaseModel):
     age: int
@@ -102,6 +107,6 @@ class Student(BaseModel):
             raise ValueError("Students under 18 cannot take FastAPI")
         return self
 
-@app.post("/students")
+@app5.post("/students")
 def create_student(student: Student):
     return student
