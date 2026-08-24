@@ -111,3 +111,69 @@ def get_role(token: str= Depends(oauth2_scheme)):
             "user_id": payload["user_id"],
             "role": payload["role"]
         }
+
+
+
+from datetime import datetime, timedelta, timezone
+
+app3= FastAPI()
+
+class exp:
+    def __init__(self, username, role):
+        self.username=username
+        self.role=role
+        self.exp_time=datetime.now(timezone.utc)+timedelta(minutes=2)
+
+@app3.post("/token")
+def post_token(form_data: exp= Depends()):
+
+    if form_data.username != "rohan" or form_data.role != "student":
+        raise HTTPException(
+            status_code= 403,
+            detail= "Invalid credentials"
+        )
+
+    data = {
+        "username": form_data.username,
+        "role": form_data.role,
+        "exp_time": form_data.exp_time
+    }
+
+    token = jwt.encode(
+        data,
+        SECRET_KEY,
+        algorithm="HS256"
+    )
+
+    return {
+        "token": token,
+        "token_type": "Bearer"
+    }
+
+@app3.get("/profile")
+def get_token(token: str= Depends(oauth2_scheme)):
+
+    try:
+        exp_token = jwt.decode(
+            token,
+            SECRET_KEY,
+            algorithms="HS256"
+        )
+
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(
+            status_code=401,
+            detail="Token expired"
+        )
+    
+    except jwt.InvalidTokenError:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid Token"
+        )
+
+    return {
+        "username": exp_token["username"],
+        "role": exp_token["role"],
+        "exp_time": exp_token["exp_time"]
+    }
