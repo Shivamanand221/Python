@@ -3,14 +3,17 @@ from pydantic import BaseModel
 
 app = FastAPI()
 
-# class Product(BaseModel):
-#     name: str
-#     price: int
-#     stock: int
+class Product(BaseModel):
+    name: str
+    price: int
+    stock: int
 
-# @app.post("/products")
-# def create_product(product: Product):
-#     return product
+@app.post("/products")
+def create_product(product: Product):
+    return product
+
+
+app1= FastAPI()
 
 class Student(BaseModel):
     name: str
@@ -20,7 +23,7 @@ class Course(BaseModel):
     name: str
     duration: int
 
-@app.post("/enroll")
+@app1.post("/enroll")
 def create_enroll(
     student: Student,
     course: Course

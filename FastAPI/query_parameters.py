@@ -18,7 +18,7 @@ def get_users(name: str = None, price: int=10):
 @app.get("/category")
 def get_category(
     name: str = "shivam",
-    price: int =2 00,
+    price: int = 200,
     age: int = 20
 ):
     return {
