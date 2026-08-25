@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException, Query, Path, Header, Cookie
-from fastapi import Request, Response, Form, Depends
+from fastapi import Request, Response, Form, Depends, UploadFile, File
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, field_validator, model_validator
@@ -114,3 +114,76 @@ def check(api_key: str= Header(alias="X-API-KEY")):
 @app8.get("/secret")
 def secrets(api_key: str= Depends(check)):
     return api_key
+
+
+#Q.9
+app9=FastAPI()
+
+@app9.post("/login")
+def post_id(
+    name: str,
+    password: str,
+    response: Response
+):
+    if name != "rohan" or password != "12345":
+        raise HTTPException(
+            status_code=401,
+            detail= "Invalid credentials"
+        )
+
+    response.set_cookie(
+        key= "session_id",
+        value= "abc123"
+    )
+    return {
+        "message": "login successful"
+    }
+
+@app9.get("/profile")
+def get_id(session_id: str= Cookie()):
+    return {"session_id": session_id}
+
+
+#Q.10
+
+app10= FastAPI()
+
+@app10.post("/upload")
+def post_upload(file: UploadFile= File()):
+    return {
+        "filename": file.filename,
+        "content_type": file.content_type
+    }
+
+
+#Q.11
+app11= FastAPI()
+
+class employee(BaseModel):
+    id: int
+    name: str
+
+@app11.get("/employee/{employee_id}", response_model=employee)
+def get_employee():
+    return {
+        "id": 101,
+        "name": "Rohan",
+        "salary": 50000,
+        "password": "abc123"
+    }
+
+#Q.12
+app12= FastAPI()
+
+def page_data(
+        page: int,
+        limit: int
+):
+    return {
+        "page": page,
+        "limit": limit
+    }
+
+@app.get("/products")
+def product(data= Depends(page_data)):
+    return data
