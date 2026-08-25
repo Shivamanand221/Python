@@ -59,11 +59,58 @@ def register():
 #Q.5
 app5= FastAPI()
 
-@app5.post("/students")
 class Student(BaseModel):
     name: str
     age: int= Field(le=30, ge=18)
     marks: int= Field(le=100, ge=0)
 
+@app5.post("/students")
 def student(data: Student):
     return data
+
+
+#Q.6
+app6= FastAPI()
+
+@app6.get("/products/{product_id}")
+def product_details(
+        product_id: int,
+        category: str,
+        min_price: int,
+        max_price: int
+):
+    return {
+        "product_id":product_id,
+        "category": category,
+        "min_price": min_price,
+        "max_price": max_price
+    }
+
+#Q.7
+app7= FastAPI()
+
+@app7.post("/login")
+def post_data(form_data: OAuth2PasswordRequestForm= Depends()):
+    if form_data.username != "rohan" or form_data.password != "12345":
+        raise HTTPException(
+            status_code=401,
+            detail= "Invalid credentials"
+        )
+    return {"message": "login successful"}
+
+
+#Q.8
+app8=FastAPI()
+
+def check(api_key: str= Header(alias="X-API-KEY")):
+    if api_key != "my-secret-key":
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid key"
+        )
+    return api_key
+
+
+@app8.get("/secret")
+def secrets(api_key: str= Depends(check)):
+    return api_key
