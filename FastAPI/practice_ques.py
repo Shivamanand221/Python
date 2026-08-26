@@ -270,3 +270,70 @@ def get_jwt(token: str= Depends(oauth2_scheme)):
         "username": payload["sub"],
         "role": payload["role"],
     }
+
+
+#Q.15
+app15= FastAPI()
+
+KEY= "my-secret-key"
+
+oauth2_scheme2= OAuth2PasswordBearer("token")
+
+@app15.post("/token")
+def post_token(form_data: OAuth2PasswordRequestForm= Depends()):
+    if form_data.username != "rohan" or form_data.password != "12345":
+        raise HTTPException(
+            status_code= 401,
+            detail= "Invalid credentials"
+        )
+
+    data= {
+        "sub": form_data.username,
+        "role": "admin",
+        "exp": datetime.now(timezone.utc)+ timedelta(minutes=2)
+    }
+
+    token = jwt.encode(
+        data,
+        KEY,
+        algorithm= "HS256"
+    )
+
+    return {
+        "access_token": token,
+        "token_type": "bearer"
+    }
+
+@app15.get("/admin")
+def get_token(token:str = Depends(oauth2_scheme2)):
+    try:
+        data= jwt.decode(
+            token,
+            KEY,
+            algorithms="HS256"
+        )
+
+        if data["role"] != "admin":
+            raise HTTPException(
+                status_code= 401,
+                detail= "Invalid role"
+            )
+    except jwt.InvalidTokenError:
+        raise HTTPException(
+            status_code= 401,
+            detail= "Invalid token"
+        )
+
+    except jwt.InvalidSignatureError:
+        raise HTTPException(
+            status_code= 401,
+            detail= "Token expired"
+        )
+
+    return {
+        "message": "Welcome admin"
+    }
+
+
+#Q.16
+app16= FastAPI()
