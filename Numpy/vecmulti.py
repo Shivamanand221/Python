@@ -69,5 +69,6 @@ op2=np.array([[1,2],
               [7,8]])
 
 op3=np.array([1,1])
+print(op1@op2)
 ans1=op1@op2+op3
 print(ans1)
