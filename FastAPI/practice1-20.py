@@ -164,10 +164,10 @@ class employee(BaseModel):
     name: str
 
 @app11.get("/employee/{employee_id}", response_model=employee)
-def get_employee():
+def get_employee(employee_id: int):
     return {
         "id": 101,
-        "name": "Rohan",
+        "name": "Rohan",    
         "salary": 50000,
         "password": "abc123"
     }
@@ -184,6 +184,89 @@ def page_data(
         "limit": limit
     }
 
-@app.get("/products")
+@app12.get("/products")
 def product(data= Depends(page_data)):
     return data
+
+
+#Q.13
+app13= FastAPI()
+
+oauth2_scheme= OAuth2PasswordBearer(tokenUrl="token")
+
+@app13.post("/token")
+def post_token(form_data: OAuth2PasswordRequestForm=Depends()):
+    if form_data.username != "rohan" or form_data.password !="12345":
+        raise HTTPException(
+            status_code= 401,
+            detail= "Invalid credentials"
+        )
+
+    return {
+        "access_token": "abc123",
+        "token_type": "bearer"
+    }
+
+@app13.get("/profile")
+def get_token(token: str= Depends(oauth2_scheme)):
+    return {
+        "token": token
+    }
+
+
+#Q.14
+app14= FastAPI()
+
+SECRET_KEY= "my-secret-key"
+oauth2_scheme= OAuth2PasswordBearer("token")
+
+@app14.post("/login")
+def post_jwt(form_data: OAuth2PasswordRequestForm= Depends()):
+    if form_data.username != "rohan" or form_data.password != "12345":
+        raise HTTPException(
+            status_code= 401,
+            detail= "Invalid credentials"
+        )
+
+    data= {
+        "sub": form_data.username,
+        "role": "student",
+        "exp": datetime.now(timezone.utc)+ timedelta(minutes=2)
+    }
+
+    token= jwt.encode(
+        data,
+        SECRET_KEY,
+        algorithm= "HS256"
+    )
+
+    return {
+        "access_token": token,
+        "token_type": "bearer"
+    }
+
+@app14.get("/profile")
+def get_jwt(token: str= Depends(oauth2_scheme)):
+    try:
+        payload= jwt.decode(
+            token,
+            SECRET_KEY,
+            algorithms= "HS256"
+        )
+
+    except jwt.InvalidTokenError:
+        raise HTTPException(
+            status_code= 401,
+            detail= "Invalid credentials"
+        )
+
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(
+            status_code= 401,
+            detail= "token expired"
+        )
+
+    return {
+        "username": payload["sub"],
+        "role": payload["role"],
+    }
