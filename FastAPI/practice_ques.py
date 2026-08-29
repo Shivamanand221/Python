@@ -2,9 +2,12 @@ from fastapi import FastAPI, HTTPException, Query, Path, Header, Cookie
 from fastapi import Request, Response, Form, Depends, UploadFile, File
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, field_validator, model_validator
 import jwt
 from datetime import datetime, timedelta, timezone
+import time
+
 
 #Q.1
 
@@ -337,3 +340,192 @@ def get_token(token:str = Depends(oauth2_scheme2)):
 
 #Q.16
 app16= FastAPI()
+
+@app16.middleware("http")
+async def middleware_key(request: Request, call_next):
+    api_key= request.headers.get("X-API-Key")
+
+    if api_key != "my-secret-key":
+        return JSONResponse(
+            status_code= 401,
+            content= {"detail": "invalid"}
+        )
+
+    response= await call_next(request)
+
+    return response
+
+@app16.get("/hello")
+def hello():
+    return {"message": "Hello"}
+
+
+#Q.17
+app17= FastAPI()
+
+@app17.middleware("http")
+async def middleware_time(request: Request, call_next):
+
+    start_time= time.time()
+
+    response= await call_next(request)
+
+    end_time= time.time()
+
+    processing_time= end_time-start_time
+
+    response.headers["X-Process-Time"]= str(processing_time)
+
+    return response
+
+@app17.get("/hello")
+def hello():
+    return {"message": "hello"}
+
+
+#Q.18
+app18= FastAPI()
+
+KEY = "my-secret-key"
+oauth2_scheme3= OAuth2PasswordBearer("token")
+
+app18.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type", "Authorization"]
+)
+
+@app18.middleware("http")
+async def middleware_info(request: Request, call_next):
+
+    start_time= time.now()
+
+    response= call_next(request)
+
+    end_time= time.now()
+
+    processing_time= end_time-start_time
+
+    response.headers["X-Process-Time"]= str(processing_time)
+    
+    return response
+
+class Student(BaseModel):
+        id: int
+        name: str
+        age: int= Field(ge=18, le=30)
+        marks: int= Field(ge=0, le=100)
+
+students= []
+
+@app18.post("/token")
+def post_token(form_data: OAuth2PasswordRequestForm= Depends()):
+    if form_data.username != "rohan" or form_data.password != "12345":
+        raise HTTPException(
+            status_code=401,
+            detail= "Invalid authentication"
+        )
+
+    data= {
+        "sub": form_data.username,
+        "role": "admin",
+        "exp": datetime.now(timezone.utc)+ timedelta(minutes=2)
+    }
+
+    token= jwt.encode(
+        data,
+        KEY,
+        algorithm="HS256"
+    )
+
+    return {
+        "access_token": token,
+        "token_type": "bearer"
+    }
+
+@app18.post("/students", status_code=201)
+def post_student(student: Student, token: str= Depends(oauth2_scheme3)):
+    try:
+        payload= jwt.decode(
+            token,
+            KEY,
+            algorithms="HS256"
+        )
+    
+    except jwt.InvalidTokenError:
+        raise HTTPException(
+        status_code=401,
+        detail= "Invalid token"
+        )
+    
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(
+        status_code=401,
+        detail= "Token expired"
+    )
+    
+    if payload["role"] != "admin":
+        raise HTTPException(
+        status_code=403,
+        detail= "Admin excess expired"
+    )
+    
+    students.append()
+
+    return student
+
+
+@app18.get("/students/{student_id}")
+def get_student(token: str = Depends(oauth2_scheme3)):
+    try:
+        jwt.decode(
+            token,
+            KEY,
+            algorithms="HS256"
+        )
+        
+    except jwt.InvalidTokenError:
+        raise HTTPException(
+            status_code=401,
+            detail= "Invalid token"
+        )
+        
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(
+            status_code=401,
+            detail= "Token expired"
+        )
+
+    return students
+
+@app.get("/students/{student_id}")
+def get_student(
+    student_id: int,
+    token: str= Depends(oauth2_scheme3)
+):
+    try:
+        jwt.decode(
+            token,
+            KEY,
+            algorithms=["HS256"]
+        )
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(
+            status_code=401,
+            detail="Token expired"
+        )
+    except jwt.InvalidTokenError:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid token"
+        )
+    
+    for student in students:
+        if student.id== student_id:
+            return student
+
+    raise HTTPException(
+        status_code= 404,
+        detail= "Student not found"
+    )
